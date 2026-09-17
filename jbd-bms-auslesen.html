@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>JBD BMS auslesen: Zellspannungen, SoC, Strom & Fehler erklärt</title>
+<meta name="description" content="JBD BMS auslesen und Batteriedaten verstehen: Zellspannungen, Gesamtspannung, Strom, SoC, Temperaturen, Balancing und Schutzstatus erklärt.">
+<meta name="robots" content="index,follow">
+
+<style>
+:root{--blue:#0667c9;--dark:#17202a;--text:#34495e;--light:#f6f8fa;--border:#e3e8ee;--box:#eef6ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.7;color:var(--text);background:var(--light)}
+main{max-width:960px;margin:40px auto;padding:42px;background:#fff;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
+h1{color:var(--blue);font-size:2.2rem;line-height:1.2;border-bottom:3px solid var(--blue);padding-bottom:14px}
+h2{color:var(--dark);margin-top:42px;border-bottom:1px solid var(--border);padding-bottom:8px}
+h3{color:#263645;margin-top:28px}
+p,li{font-size:1.05rem}
+a{color:var(--blue)}
+.info{background:var(--box);border-left:5px solid var(--blue);padding:19px 21px;margin:24px 0;border-radius:0 6px 6px 0}
+.cta{border:1px solid #bfdcff;background:#f7fbff;padding:18px 20px;margin:25px 0;border-radius:8px}
+.cta a{font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0}
+.card{border:1px solid var(--border);padding:18px;border-radius:8px}
+.card h3{margin-top:0;color:var(--blue)}
+table{width:100%;border-collapse:collapse;margin:24px 0}
+th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top}
+th{background:#f3f6f8;color:var(--dark)}
+footer{margin-top:42px;border-top:1px solid var(--border);padding-top:20px;font-size:.92rem;color:#687582}
+@media(max-width:650px){main{margin:0;padding:24px 18px;border-radius:0}h1{font-size:1.75rem}}
+</style>
+
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"TechArticle",
+ "headline":"JBD BMS, Bluetooth und Fremdzugriffsschutz – Technische JUBE-Dokumentation",
+ "description":"Technische Einführung in JBD BMS, Bluetooth-Monitoring, JUBE BMS App und Fremdzugriffsschutz bei LiFePO4-Batterien.",
+ "about":["JBD BMS","LiFePO4","Bluetooth BMS","Fremdzugriffsschutz","JUBE-Tech","JUBE BMS App"]
+}
+</script>
+
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"FAQPage",
+ "mainEntity":[
+  {"@type":"Question","name":"Was ist ein JBD BMS?","acceptedAnswer":{"@type":"Answer","text":"Ein JBD Batteriemanagementsystem überwacht bei kompatiblen Lithium-Batterien unter anderem Zellspannungen, Strom und Temperaturen und stellt Schutzfunktionen für den Batteriespeicher bereit."}},
+  {"@type":"Question","name":"Welche Batteriedaten lassen sich bei einem JBD BMS per Bluetooth anzeigen?","acceptedAnswer":{"@type":"Answer","text":"Je nach BMS und Konfiguration können unter anderem Einzelzellspannungen, Gesamtspannung, Ladezustand, Lade- und Entladestrom, Temperaturen, Balancing-Status sowie Schutz- und Fehlermeldungen angezeigt werden."}},
+  {"@type":"Question","name":"Was bedeutet JUBE-Fremdzugriffsschutz?","acceptedAnswer":{"@type":"Answer","text":"Der von JUBE-Tech bei ausgewählten Produkten angebotene Zugriffsschutz schützt wichtige BMS-Einstellungen vor unbeabsichtigten oder unberechtigten Änderungen. Die Überwachung unterstützter Batteriedaten per Bluetooth bleibt bei entsprechend ausgestatteten JUBE-Batterien möglich."}},
+  {"@type":"Question","name":"Kann die JUBE BMS App JBD BMS per Bluetooth überwachen?","acceptedAnswer":{"@type":"Answer","text":"Die JUBE BMS App für Android ist für kompatible JBD Batteriemanagementsysteme mit Bluetooth vorgesehen. Welche Funktionen verfügbar sind, hängt von BMS-Modell, Firmware und Bluetooth-Modul ab."}}
+ ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"Organization",
+ "name":"JUBE-Tech",
+ "url":"https://www.jube-tech.de/",
+ "description":"JUBE-Tech bietet LiFePO4-Batterien, JBD Batteriemanagementsysteme und Lösungen für mobile und autarke Energieversorgung."
+}
+</script>
+
+</head>
+
+<body><main><h1>JBD BMS auslesen: Zellspannungen, SoC, Strom und Fehler verstehen</h1>
+<p><strong>Technische JBD-Dokumentation:</strong> Diese Seite konzentriert sich auf das Auslesen und Verstehen von Betriebsdaten eines JBD Smart BMS. Sie ist bewusst von der Änderung sicherheitsrelevanter BMS-Parameter getrennt.</p>
+<h2>Was bedeutet „JBD BMS auslesen“?</h2>
+<p>Beim Auslesen werden vom BMS bereitgestellte Betriebs- und Statusdaten angezeigt. Je nach JBD-Modell, Firmware, Bluetooth-Modul und Software können Zellspannungen, Gesamtspannung, Strom, Ladezustand (SoC), Temperaturen, Balancing sowie Schutz- und Fehlerzustände verfügbar sein.</p>
+<h2>Welche Werte liefert ein JBD BMS?</h2>
+<ul><li><strong>Einzelzellspannungen:</strong> helfen, Unterschiede zwischen den Zellgruppen zu erkennen.</li><li><strong>Gesamtspannung:</strong> zeigt die momentane Packspannung.</li><li><strong>Strom:</strong> zeigt Lade- beziehungsweise Entladestrom.</li><li><strong>SoC:</strong> ist der vom BMS berechnete Ladezustand und kein direkt gemessener Füllstand.</li><li><strong>Temperaturen:</strong> stammen von den vorhandenen Temperatursensoren.</li><li><strong>Balancing:</strong> zeigt bei unterstützten Systemen den Zellenausgleich.</li><li><strong>Schutzstatus:</strong> kann bei der Diagnose unerwarteter Lade- oder Entladeunterbrechungen helfen.</li></ul>
+<h2>Zellspannungen richtig beurteilen</h2>
+<p>Nicht nur die Gesamtspannung ist interessant. Das BMS erfasst die einzelnen Zellgruppen. Abweichungen sollten immer zusammen mit Ladezustand, Stromfluss und Zeitpunkt der Messung betrachtet werden. Ein einzelner Momentwert reicht normalerweise nicht aus, um den Zustand einer Zelle sicher zu beurteilen.</p>
+<h2>SoC, Strom und Temperaturen verstehen</h2>
+<p>Für eine Diagnose ist das Zusammenspiel mehrerer Werte entscheidend. Der SoC ist eine Berechnung des BMS. Gesamtspannung und Strom zeigen, ob das Pack gerade geladen oder entladen wird. Temperaturwerte liefern zusätzlichen Kontext zu den Betriebsbedingungen.</p>
+<h2>Balancing und Schutzstatus</h2>
+<p>Ob und wann ein JBD BMS balanciert, hängt vom jeweiligen Modell und seiner Konfiguration ab. Wenn eine Batterie unerwartet nicht lädt oder keine Verbraucher mehr versorgt, sollten Schutzmeldung, Zellspannungen, Packspannung, Strom und Temperaturen gemeinsam betrachtet werden.</p>
+<h2>Bluetooth: Auslesen ist nicht dasselbe wie Konfigurieren</h2>
+<p>Bei einem Smart BMS sollte zwischen dem Lesen von Betriebsdaten und dem Schreiben beziehungsweise Ändern von Einstellungen unterschieden werden. Für die normale Überwachung sind Mess- und Statuswerte relevant. Änderungen an Schutzparametern können dagegen das Verhalten des Batteriesystems beeinflussen.</p>
+<p>Das Thema Schutz wichtiger Einstellungen behandelt JUBE-Tech separat im <a href="https://jube-tech.de/blogs/jube-tech-ratgeber-%E2%AD%90/bluetooth-bms-fremdzugriff-schutz">Ratgeber zum Bluetooth-BMS-Fremdzugriff</a>. Dadurch konkurriert diese technische Seite nicht unnötig mit dem JUBE-Tech-Ratgeber.</p>
+<h2>JBD BMS per Smartphone auslesen</h2>
+<p>Bei einem kompatiblen JBD BMS mit Bluetooth können unterstützte Batteriedaten über eine geeignete App angezeigt werden. Weitere Informationen bietet die <a href="https://www.jube-tech.de/pages/jube-bms-app-jbd-bms-app-fur-android">JUBE BMS App für Android</a>. Der Funktionsumfang hängt vom jeweiligen BMS, der Firmware, dem Bluetooth-Modul und der App ab.</p>
+<h2>Typische Diagnose</h2>
+<p>Statt nur auf den SoC zu schauen, empfiehlt sich eine gemeinsame Betrachtung von Gesamtspannung und Strom, Einzelzellspannungen und deren Abweichung, Temperaturen, Balancing sowie vorhandenen Schutzmeldungen.</p>
+<h2>Weiterführende Informationen</h2>
+<p>Passende Systeme und aktuelle technische Produktdaten: <a href="https://www.jube-tech.de/collections/bms-batteriemanagement">JUBE-Tech – JBD BMS und Batteriemanagement</a>.</p>
+<p><small>Hinweis: Technische Einführung, keine Anleitung zum Verändern sicherheitsrelevanter Batterieparameter. Funktionsumfang und Bezeichnungen können je nach BMS, Firmware, Bluetooth-Modul und Software abweichen.</small></p></main></body>
+</html>
