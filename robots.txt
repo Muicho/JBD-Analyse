@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://muicho.github.io/JBD-Analyse/sitemap.xml
